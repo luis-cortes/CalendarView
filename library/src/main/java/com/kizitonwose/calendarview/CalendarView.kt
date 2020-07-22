@@ -168,7 +168,7 @@ open class CalendarView : RecyclerView {
      */
     var maxRowCount = 6
         set(value) {
-            if (!(1..6).contains(value)) throw IllegalArgumentException("'maxRowCount' should be between 1 to 6")
+            if (value !in (1..6)) throw IllegalArgumentException("'maxRowCount' should be between 1 to 6")
             if (field != value) {
                 field = value
                 updateAdapterMonthConfig()
@@ -417,7 +417,7 @@ open class CalendarView : RecyclerView {
     }
 
     private fun updateAdapterMonthConfig() {
-        if (adapter != null) {
+        adapter?.let {
             calendarAdapter.monthConfig =
                 MonthConfig(
                     outDateStyle,

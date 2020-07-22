@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.kizitonwose.calendarview.model.CalendarDay
 import com.kizitonwose.calendarview.model.CalendarMonth
 
-internal class MonthViewHolder constructor(
+internal class MonthViewHolder(
     adapter: CalendarAdapter,
     rootLayout: ViewGroup,
-    private val weekHolders: List<WeekHolder>,
+    private val dayHolders: List<DayHolder>,
     private var monthHeaderBinder: MonthHeaderFooterBinder<ViewContainer>?,
     private var monthFooterBinder: MonthHeaderFooterBinder<ViewContainer>?
 ) : RecyclerView.ViewHolder(rootLayout) {
@@ -36,8 +36,11 @@ internal class MonthViewHolder constructor(
             }
             monthFooterBinder?.bind(footerContainer, month)
         }
-        weekHolders.forEachIndexed { index, week ->
-            week.bindWeekView(month.weekDays.getOrNull(index).orEmpty())
+
+        dayHolders.forEachIndexed { dayIndex, holder ->
+            // Indices can be null if OutDateStyle is NONE. We set the
+            // visibility for the views at these indices to INVISIBLE.
+            holder.bindDayView(month.weekDays.flatten().getOrNull(dayIndex))
         }
     }
 

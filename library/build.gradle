@@ -37,7 +37,7 @@ dependencies {
     coreLibraryDesugaring deps.desugaring
     implementation deps.kotlin_stdlib8
     implementation deps.androidx.core_ktx
-
+    implementation "androidx.gridlayout:gridlayout:1.0.0"
     // Expose RecyclerView which is CalendarView's superclass to
     // prevent a compile error when using the library in a project:
     // Error: Supertypes of the following classes cannot be resolved.

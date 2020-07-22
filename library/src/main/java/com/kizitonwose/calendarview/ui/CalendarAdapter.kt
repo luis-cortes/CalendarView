@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import androidx.core.view.updateLayoutParams
+import androidx.gridlayout.widget.GridLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.kizitonwose.calendarview.CalendarView
 import com.kizitonwose.calendarview.model.*
@@ -81,10 +82,20 @@ internal class CalendarAdapter(
             calView.dayBinder as DayBinder<ViewContainer>
         )
 
-        val weekHolders = (1..6)
-            .map { WeekHolder(createDayHolders(dayConfig)) }
-            .onEach { weekHolder -> rootLayout.addView(weekHolder.inflateWeekView(rootLayout)) }
+        val monthBodyLayout = GridLayout(context).apply {
+            layoutParams = ViewGroup.LayoutParams(LP.MATCH_PARENT, LP.WRAP_CONTENT)
+            // TODO this needs to be configurable
+            columnCount = 7
+            rowCount = monthConfig.maxRowCount
+        }
+        val dayHolders: List<DayHolder> = (1..6)
+            .flatMap { createDayHolders(dayConfig) }
+            .onEach { dayHolder ->
+                monthBodyLayout.addView(dayHolder.inflateDayView(monthBodyLayout))
+            }
 
+
+        rootLayout.addView(monthBodyLayout)
         if (viewConfig.monthFooterRes != 0) {
             val monthFooterView = rootLayout.inflate(viewConfig.monthFooterRes)
             // Don't overwrite ID set by the user.
@@ -102,7 +113,7 @@ internal class CalendarAdapter(
                 calView.monthPaddingStart, calView.monthPaddingTop,
                 calView.monthPaddingEnd, calView.monthPaddingBottom
             )
-            root.layoutParams = ViewGroup.MarginLayoutParams(LP.WRAP_CONTENT, LP.WRAP_CONTENT).apply {
+            root.layoutParams = ViewGroup.MarginLayoutParams(LP.MATCH_PARENT, LP.WRAP_CONTENT).apply {
                 bottomMargin = calView.monthMarginBottom
                 topMargin = calView.monthMarginTop
 
@@ -130,7 +141,7 @@ internal class CalendarAdapter(
         return MonthViewHolder(
             this,
             userRoot,
-            weekHolders,
+            dayHolders,
             calView.monthHeaderBinder as MonthHeaderFooterBinder<ViewContainer>?,
             calView.monthFooterBinder as MonthHeaderFooterBinder<ViewContainer>?
         )
@@ -199,23 +210,26 @@ internal class CalendarAdapter(
                 // New: Also fixes issue where the calendar does not wrap each month's height when in vertical,
                 // paged mode and just matches parent's height instead.
                 if (calView.scrollMode == ScrollMode.PAGED) {
-                    val calWrapsHeight = calWrapsHeight ?: (calView.layoutParams.height == LP.WRAP_CONTENT).also {
-                        // We modify the layoutParams so we save the initial value set by the user.
-                        calWrapsHeight = it
-                    }
+                    val calWrapsHeight =
+                        calWrapsHeight ?: (calView.layoutParams.height == LP.WRAP_CONTENT).also {
+                            // We modify the layoutParams so we save the initial value set by the user.
+                            calWrapsHeight = it
+                        }
                     if (!calWrapsHeight) return // Bug only happens when the CalenderView wraps its height.
                     val visibleVH =
-                        calView.findViewHolderForAdapterPosition(visibleItemPos) as? MonthViewHolder ?: return
+                        calView.findViewHolderForAdapterPosition(visibleItemPos) as? MonthViewHolder
+                            ?: return
                     val newHeight = visibleVH.headerView?.height.orZero() +
-                        // visibleVH.bodyLayout.height` won't not give us the right height as it differs
-                        // depending on row count in the month. So we calculate the appropriate height
-                        // by checking the number of visible(non-empty) rows.
-                        visibleMonth.weekDays.size * calView.dayHeight +
-                        visibleVH.footerView?.height.orZero()
+                            // visibleVH.bodyLayout.height` won't not give us the right height as it differs
+                            // depending on row count in the month. So we calculate the appropriate height
+                            // by checking the number of visible(non-empty) rows.
+                            visibleMonth.weekDays.size * calView.dayHeight +
+                            visibleVH.footerView?.height.orZero()
                     if (calView.height != newHeight) {
                         ValueAnimator.ofInt(calView.height, newHeight).apply {
                             // Don't animate when the view is shown initially.
-                            duration = if (initialLayout) 0 else calView.wrappedPageHeightAnimationDuration.toLong()
+                            duration =
+                                if (initialLayout) 0 else calView.wrappedPageHeightAnimationDuration.toLong()
                             addUpdateListener {
                                 calView.updateLayoutParams { height = it.animatedValue as Int }
                                 visibleVH.itemView.requestLayout()
@@ -243,7 +257,8 @@ internal class CalendarAdapter(
             if (firstMonthIndex == NO_INDEX) return NO_INDEX
 
             val firstCalMonth = months[firstMonthIndex]
-            val sameMonths = months.slice(firstMonthIndex until firstMonthIndex + firstCalMonth.numberOfSameMonth)
+            val sameMonths =
+                months.slice(firstMonthIndex until firstMonthIndex + firstCalMonth.numberOfSameMonth)
             val indexWithDateInSameMonth = sameMonths.indexOfFirst { months ->
                 months.weekDays.any { weeks -> weeks.any { it == day } }
             }

@@ -1,16 +1,19 @@
 package com.kizitonwose.calendarview.ui
 
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.LayoutRes
 import androidx.annotation.Px
-import androidx.core.view.MarginLayoutParamsCompat.getMarginEnd
-import androidx.core.view.MarginLayoutParamsCompat.getMarginStart
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.marginBottom
 import androidx.core.view.marginTop
 import androidx.core.view.updateLayoutParams
+import androidx.core.view.updateLayoutParams
+import androidx.gridlayout.widget.GridLayout
+import androidx.gridlayout.widget.GridLayout.UNDEFINED
 import com.kizitonwose.calendarview.model.CalendarDay
 import com.kizitonwose.calendarview.utils.inflate
 
@@ -27,15 +30,14 @@ internal class DayHolder(private val config: DayConfig) {
     private lateinit var viewContainer: ViewContainer
     private var day: CalendarDay? = null
 
-    fun inflateDayView(parent: LinearLayout): View {
+    fun inflateDayView(parent: ViewGroup): View {
         dateView = parent.inflate(config.dayViewRes).apply {
-            // This will be placed in the WeekLayout(A LinearLayout) hence we
-            // use LinearLayout.LayoutParams and set the weight appropriately.
-            // The parent's wightSum is already set to 7 to accommodate seven week days.
-            updateLayoutParams<LinearLayout.LayoutParams> {
-                width = config.width - getMarginStart(this) - getMarginEnd(this)
-                height = config.height - marginTop - marginBottom
-                weight = 1f
+            // We ensure the layout params of the supplied child view is
+            // MATCH_PARENT so it fills the parent container.
+
+            updateLayoutParams<GridLayout.LayoutParams> {
+                // if this isn't set when the gridlayout width is set to match parent the views will not fill
+                columnSpec = GridLayout.spec(UNDEFINED, 1f)
             }
         }
         return dateView
