@@ -45,6 +45,6 @@ internal class MonthViewHolder(
     }
 
     fun reloadDay(day: CalendarDay) {
-        weekHolders.find { it.reloadDay(day) }
+        dayHolders.find { it.reloadViewIfNecessary(day) }
     }
 }
