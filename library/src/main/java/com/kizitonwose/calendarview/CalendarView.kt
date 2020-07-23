@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.View.MeasureSpec.UNSPECIFIED
 import android.view.ViewGroup
 import androidx.annotation.Px
+import androidx.core.content.withStyledAttributes
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.kizitonwose.calendarview.model.*
@@ -233,22 +234,22 @@ open class CalendarView : RecyclerView {
     private fun init(attributeSet: AttributeSet, defStyleAttr: Int, defStyleRes: Int) {
         if (isInEditMode) return
         setHasFixedSize(true)
-        val a = context.obtainStyledAttributes(attributeSet, R.styleable.CalendarView, defStyleAttr, defStyleRes)
-        dayViewResource = a.getResourceId(R.styleable.CalendarView_cv_dayViewResource, dayViewResource)
-        monthHeaderResource = a.getResourceId(R.styleable.CalendarView_cv_monthHeaderResource, monthHeaderResource)
-        monthFooterResource = a.getResourceId(R.styleable.CalendarView_cv_monthFooterResource, monthFooterResource)
-        orientation = a.getInt(R.styleable.CalendarView_cv_orientation, orientation)
-        scrollMode = ScrollMode.values()[a.getInt(R.styleable.CalendarView_cv_scrollMode, scrollMode.ordinal)]
-        outDateStyle = OutDateStyle.values()[a.getInt(R.styleable.CalendarView_cv_outDateStyle, outDateStyle.ordinal)]
-        inDateStyle = InDateStyle.values()[a.getInt(R.styleable.CalendarView_cv_inDateStyle, inDateStyle.ordinal)]
-        maxRowCount = a.getInt(R.styleable.CalendarView_cv_maxRowCount, maxRowCount)
-        monthViewClass = a.getString(R.styleable.CalendarView_cv_monthViewClass)
-        hasBoundaries = a.getBoolean(R.styleable.CalendarView_cv_hasBoundaries, hasBoundaries)
-        wrappedPageHeightAnimationDuration = a.getInt(
-            R.styleable.CalendarView_cv_wrappedPageHeightAnimationDuration,
-            wrappedPageHeightAnimationDuration
-        )
-        a.recycle()
+        context.withStyledAttributes(attributeSet, R.styleable.CalendarView, defStyleAttr, defStyleRes) {
+            dayViewResource = getResourceId(R.styleable.CalendarView_cv_dayViewResource, dayViewResource)
+            monthHeaderResource = getResourceId(R.styleable.CalendarView_cv_monthHeaderResource, monthHeaderResource)
+            monthFooterResource = getResourceId(R.styleable.CalendarView_cv_monthFooterResource, monthFooterResource)
+            orientation = getInt(R.styleable.CalendarView_cv_orientation, orientation)
+            scrollMode = ScrollMode.values()[getInt(R.styleable.CalendarView_cv_scrollMode, scrollMode.ordinal)]
+            outDateStyle = OutDateStyle.values()[getInt(R.styleable.CalendarView_cv_outDateStyle, outDateStyle.ordinal)]
+            inDateStyle = InDateStyle.values()[getInt(R.styleable.CalendarView_cv_inDateStyle, inDateStyle.ordinal)]
+            maxRowCount = getInt(R.styleable.CalendarView_cv_maxRowCount, maxRowCount)
+            monthViewClass = getString(R.styleable.CalendarView_cv_monthViewClass)
+            hasBoundaries = getBoolean(R.styleable.CalendarView_cv_hasBoundaries, hasBoundaries)
+            wrappedPageHeightAnimationDuration = getInt(
+                R.styleable.CalendarView_cv_wrappedPageHeightAnimationDuration,
+                wrappedPageHeightAnimationDuration
+            )
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

@@ -60,6 +60,14 @@ internal class CalendarAdapter(
 
     override fun getItemCount(): Int = months.size
 
+    @Suppress("UNCHECKED_CAST")
+    private val dayConfig: DayConfig by lazy {
+            DayConfig(
+                calView.dayWidth, calView.dayHeight, viewConfig.dayViewRes,
+                calView.dayBinder as DayBinder<ViewContainer>
+            )
+        }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MonthViewHolder {
         val context = parent.context
         val rootLayout = LinearLayout(context).apply {
@@ -77,17 +85,13 @@ internal class CalendarAdapter(
             rootLayout.addView(monthHeaderView)
         }
 
-        @Suppress("UNCHECKED_CAST") val dayConfig = DayConfig(
-            calView.dayWidth, calView.dayHeight, viewConfig.dayViewRes,
-            calView.dayBinder as DayBinder<ViewContainer>
-        )
-
         val monthBodyLayout = GridLayout(context).apply {
             layoutParams = ViewGroup.LayoutParams(LP.MATCH_PARENT, LP.WRAP_CONTENT)
-            // TODO this needs to be configurable
-            columnCount = 7
+            columnCount = 5
+            // TODO maybe maxRowCount should be in viewConfig?
             rowCount = monthConfig.maxRowCount
         }
+
         val dayHolders: List<DayHolder> = (1..6)
             .flatMap { createDayHolders(dayConfig) }
             .onEach { dayHolder ->
